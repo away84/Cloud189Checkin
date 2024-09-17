@@ -19,31 +19,22 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 18
-      - name: init secrets
-        uses: shine1594/secrets-to-env-action@master
-        with:
-          secrets: ${{ toJSON(secrets) }}
-          secrets_env: production
-          prefix_prod: ""
-          file_name_prod: .env
-      - name: init
+      - name: Install dependencies
         run: npm install
-      - name: run
+      - name: Run application
         id: run
         uses: nick-fields/retry@master
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: npm start
-      - name: Keep Running
+      - name: Keep Running (if necessary)
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
           git config --local user.name "${{ github.actor }}"
-          git remote set-url origin https://${{ github.actor }}:${{ github.token }}@github.com/${{ github.repository }}
-          git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
-      - name: Delete old workflow run
+      - name: Delete old workflow runs (if necessary)
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ github.token }}
